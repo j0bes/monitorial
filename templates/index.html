@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>monitoriaL</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar__row">
+      <h1 class="prompt">monitoriaL<span class="cursor" aria-hidden="true"></span></h1>
+
+      <dl class="stats">
+        <div class="stat">
+          <dt>active machines</dt>
+          <dd id="stat-machines">0</dd>
+        </div>
+        <div class="stat">
+          <dt>open ports</dt>
+          <dd id="stat-ports">0</dd>
+        </div>
+        <div class="stat">
+          <dt>date</dt>
+          <dd id="stat-date">-</dd>
+        </div>
+      </dl>
+
+      <div class="actions">
+        <button type="button" class="btn btn--primary" id="btn-scan" onclick="startScan()">run scan</button>
+        <button type="button" class="btn" id="btn-last">last scan</button>
+      </div>
+    </div>
+
+    <div class="progress-row">
+      <div class="progress" id="progress" role="progressbar"
+           aria-labelledby="progress-label" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <div class="progress__fill" id="progress-fill" style="width: 0%"></div>
+      </div>
+      <span class="progress__label" id="progress-label">idle</span>
+    </div>
+  </header>
+
+  <main class="layout">
+
+    <section class="panel hosts" aria-labelledby="hosts-title">
+      <header class="panel__head">
+        <h2 id="hosts-title">machines</h2>
+        <span class="muted" id="hosts-meta">scan #3</span>
+      </header>
+
+      <div class="table-wrap">
+        <table class="hosts-table">
+          <thead>
+            <tr>
+              <th scope="col">ip</th>
+              <th scope="col">hostname</th>
+              <th scope="col">open ports</th>
+            </tr>
+          </thead>
+          <!-- Lignes d'exemple : à vider côté JS (tbody.replaceChildren()) -->
+          <tbody id="hosts-body">
+            <tr data-placeholder>
+              <td class="host__ip">192.168.1.1</td>
+              <td class="host__name">router.lan</td>
+              <td class="host__ports"><span class="port">53</span><span class="port">80</span><span class="port">443</span></td>
+            </tr>
+            <tr data-placeholder>
+              <td class="host__ip">192.168.1.12</td>
+              <td class="host__name">nas.lan</td>
+              <td class="host__ports"><span class="port">22</span><span class="port">445</span><span class="port">5000</span></td>
+            </tr>
+            <tr data-placeholder>
+              <td class="host__ip">192.168.1.34</td>
+              <td class="host__name muted">-</td>
+              <td class="host__ports"><span class="port">8080</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="empty" id="hosts-empty" hidden>aucune machine détectée sur ce scan</p>
+    </section>
+
+    <aside class="panel history" aria-labelledby="history-title">
+      <header class="panel__head">
+        <h2 id="history-title">historique</h2>
+      </header>
+
+      <!-- Items d'exemple : à vider côté JS (list.replaceChildren()) -->
+      <ul class="history-list" id="history-list">
+        <li data-placeholder>
+          <button type="button" class="history-item is-active" data-scan-id="3" aria-current="true">
+            <span class="history-item__date">2026-10-10 14:32</span>
+            <span class="history-item__meta">3 machines, 7 ports</span>
+          </button>
+        </li>
+        <li data-placeholder>
+          <button type="button" class="history-item" data-scan-id="2">
+            <span class="history-item__date">2026-10-08 09:15</span>
+            <span class="history-item__meta">3 machines, 6 ports</span>
+          </button>
+        </li>
+        <li data-placeholder>
+          <button type="button" class="history-item" data-scan-id="1">
+            <span class="history-item__date">2026-10-01 21:03</span>
+            <span class="history-item__meta">2 machines, 4 ports</span>
+          </button>
+        </li>
+        <li data-placeholder>
+          <button type="button" class="history-item" data-scan-id="1">
+            <span class="history-item__date">2026-10-01 21:03</span>
+            <span class="history-item__meta">2 machines, 4 ports</span>
+          </button>
+        </li>
+        <li data-placeholder>
+          <button type="button" class="history-item" data-scan-id="1">
+            <span class="history-item__date">2026-10-01 21:03</span>
+            <span class="history-item__meta">2 machines, 4 ports</span>
+          </button>
+        </li>
+        <li data-placeholder>
+          <button type="button" class="history-item" data-scan-id="1">
+            <span class="history-item__date">2026-10-01 21:03</span>
+            <span class="history-item__meta">2 machines, 4 ports</span>
+          </button>
+        </li>
+      </ul>
+
+      <p class="empty" id="history-empty" hidden>aucun scan enregistré</p>
+    </aside>
+
+  </main>
+
+  <template id="tpl-host-row">
+    <tr>
+      <td class="host__ip"></td>
+      <td class="host__name"></td>
+      <td class="host__ports"></td>
+    </tr>
+  </template>
+
+  <template id="tpl-port">
+    <span class="port"></span>
+  </template>
+
+  <template id="tpl-history-item">
+    <li>
+      <button type="button" class="history-item">
+        <span class="history-item__date"></span>
+        <span class="history-item__meta"></span>
+      </button>
+    </li>
+  </template>
+
+  <script src="../static/js/app.js"></script>
+</body>
+</html>
