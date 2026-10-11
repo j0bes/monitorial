@@ -35,10 +35,10 @@ def get_last_scan_id():
 def get_scan_progress(scan_id: int):
     con = get_connection()
     row = con.execute(
-        "SELECT total_ips, completed_ips FROM scans WHERE id = ?", (scan_id, )
+        "SELECT total_ips, completed_ips, status FROM scans WHERE id = ?", (scan_id, )
     ).fetchone()
     con.close()
-    return [int(row[0]), int(row[1])]
+    return [int(row[0]), int(row[1]), row[2]]
 
 def increment_scan_progress(scan_id: int):
     con = get_connection()
@@ -97,3 +97,11 @@ def load_scan(scan_id):
         "timestamp": timestamp,
         "hosts": hosts
     }
+
+def list_scans(limit=50):
+    conn = get_connection()  # ta fonction de connexion existante
+    rows = conn.execute(
+        "SELECT id, timestamp FROM scans WHERE status = 'completed' ORDER BY id DESC LIMIT ?", (limit,)
+    ).fetchall()
+    conn.close()
+    return [{"id": r[0], "timestamp": r[1]} for r in rows]

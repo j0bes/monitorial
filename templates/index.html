@@ -31,7 +31,7 @@
       </dl>
 
       <div class="actions">
-        <button type="button" class="btn btn--primary" id="btn-scan" onclick="startScan()">run scan</button>
+        <button type="button" class="btn btn--primary" id="btn-scan">run scan</button>
         <button type="button" class="btn" id="btn-last">last scan</button>
       </div>
     </div>
@@ -50,7 +50,7 @@
     <section class="panel hosts" aria-labelledby="hosts-title">
       <header class="panel__head">
         <h2 id="hosts-title">machines</h2>
-        <span class="muted" id="hosts-meta">scan #3</span>
+        <span class="muted" id="hosts-meta">-</span>
       </header>
 
       <div class="table-wrap">
@@ -62,28 +62,11 @@
               <th scope="col">open ports</th>
             </tr>
           </thead>
-          <!-- Lignes d'exemple : à vider côté JS (tbody.replaceChildren()) -->
-          <tbody id="hosts-body">
-            <tr data-placeholder>
-              <td class="host__ip">192.168.1.1</td>
-              <td class="host__name">router.lan</td>
-              <td class="host__ports"><span class="port">53</span><span class="port">80</span><span class="port">443</span></td>
-            </tr>
-            <tr data-placeholder>
-              <td class="host__ip">192.168.1.12</td>
-              <td class="host__name">nas.lan</td>
-              <td class="host__ports"><span class="port">22</span><span class="port">445</span><span class="port">5000</span></td>
-            </tr>
-            <tr data-placeholder>
-              <td class="host__ip">192.168.1.34</td>
-              <td class="host__name muted">-</td>
-              <td class="host__ports"><span class="port">8080</span></td>
-            </tr>
-          </tbody>
+          <tbody id="hosts-body"></tbody>
         </table>
       </div>
 
-      <p class="empty" id="hosts-empty" hidden>aucune machine détectée sur ce scan</p>
+      <p class="empty" id="hosts-empty">aucune donnée</p>
     </section>
 
     <aside class="panel history" aria-labelledby="history-title">
@@ -91,53 +74,84 @@
         <h2 id="history-title">historique</h2>
       </header>
 
-      <!-- Items d'exemple : à vider côté JS (list.replaceChildren()) -->
-      <ul class="history-list" id="history-list">
-        <li data-placeholder>
-          <button type="button" class="history-item is-active" data-scan-id="3" aria-current="true">
-            <span class="history-item__date">2026-10-10 14:32</span>
-            <span class="history-item__meta">3 machines, 7 ports</span>
-          </button>
-        </li>
-        <li data-placeholder>
-          <button type="button" class="history-item" data-scan-id="2">
-            <span class="history-item__date">2026-10-08 09:15</span>
-            <span class="history-item__meta">3 machines, 6 ports</span>
-          </button>
-        </li>
-        <li data-placeholder>
-          <button type="button" class="history-item" data-scan-id="1">
-            <span class="history-item__date">2026-10-01 21:03</span>
-            <span class="history-item__meta">2 machines, 4 ports</span>
-          </button>
-        </li>
-        <li data-placeholder>
-          <button type="button" class="history-item" data-scan-id="1">
-            <span class="history-item__date">2026-10-01 21:03</span>
-            <span class="history-item__meta">2 machines, 4 ports</span>
-          </button>
-        </li>
-        <li data-placeholder>
-          <button type="button" class="history-item" data-scan-id="1">
-            <span class="history-item__date">2026-10-01 21:03</span>
-            <span class="history-item__meta">2 machines, 4 ports</span>
-          </button>
-        </li>
-        <li data-placeholder>
-          <button type="button" class="history-item" data-scan-id="1">
-            <span class="history-item__date">2026-10-01 21:03</span>
-            <span class="history-item__meta">2 machines, 4 ports</span>
-          </button>
-        </li>
-      </ul>
+      <ul class="history-list" id="history-list"></ul>
 
       <p class="empty" id="history-empty" hidden>aucun scan enregistré</p>
     </aside>
+        <!-- Sécurité -->
+    <section class="panel security" aria-labelledby="security-title">
+      <header class="panel__head">
+        <h2 id="security-title">sécurité</h2>
+        <span class="muted" id="security-meta">-</span>
+      </header>
+
+      <div class="security__intro">
+        <h3>ports à risque</h3>
+        <p>Services souvent ciblés par des attaques. Leur présence n'est pas une vulnérabilité en soi, c'est un point à vérifier.</p>
+      </div>
+
+      <div class="table-wrap" id="risk-wrap" hidden>
+        <table class="hosts-table">
+          <thead>
+            <tr>
+              <th scope="col">machine</th>
+              <th scope="col">port</th>
+              <th scope="col">service</th>
+              <th scope="col">pourquoi</th>
+            </tr>
+          </thead>
+          <tbody id="risk-body"></tbody>
+        </table>
+      </div>
+
+      <p class="empty" id="risk-empty">aucune donnée</p>
+    </section>
+
+        <!-- Export -->
+    <div class="export">
+      <button type="button" class="btn" id="btn-export" disabled>export json</button>
+    </div>
 
   </main>
 
+  <dialog class="modal" id="host-modal" aria-labelledby="modal-title">
+    <div class="card">
+      <header class="card__head">
+        <svg class="card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.5" stroke-linecap="square" aria-hidden="true">
+          <rect x="3" y="4" width="18" height="12"/>
+          <path d="M8 20h8M12 16v4"/>
+          <path d="M6.5 8.5l2 1.5-2 1.5M11 12h3"/>
+        </svg>
+        <div class="card__title">
+          <h2 id="modal-title">-</h2>
+          <p class="card__ip" id="modal-ip">-</p>
+        </div>
+        <button type="button" class="card__close" id="modal-close" aria-label="fermer">x</button>
+      </header>
+
+      <dl class="card__info">
+        <dt>mac</dt>
+        <dd id="modal-mac">-</dd>
+      </dl>
+
+      <div class="card__body">
+        <table class="svc-table">
+          <thead>
+            <tr>
+              <th scope="col">port</th>
+              <th scope="col">proto</th>
+              <th scope="col">service</th>
+            </tr>
+          </thead>
+          <tbody id="modal-ports"></tbody>
+        </table>
+      </div>
+    </div>
+  </dialog>
+
   <template id="tpl-host-row">
-    <tr>
+    <tr tabindex="0">
       <td class="host__ip"></td>
       <td class="host__name"></td>
       <td class="host__ports"></td>

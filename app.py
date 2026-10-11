@@ -1,9 +1,9 @@
 # IMPORTS
 from threading import Thread
-from flask import Flask, render_template
+from flask import Flask, render_template, jsonify
 
 from database.db import init_db
-from database.scans import get_scan_progress, create_scan, load_scan
+from database.scans import get_scan_progress, create_scan, load_scan, list_scans
 
 from scanner.scan_service import run_scan
 from scanner.network import get_network, get_hosts
@@ -34,17 +34,23 @@ def scan():
 # Returns the percentage of the scan
 @app.route("/api/scan/<scan_id>/progress", methods=["GET"])
 def scan_progress(scan_id):
-    items = get_scan_progress(scan_id)
-    try:
-        percentage = (items[1]/items[0])*100
-    except ZeroDivisionError:
-        print("No ip scanned for the moment.")
-    return {"percentage": percentage}
+    total, scanned, status = get_scan_progress(scan_id)
+    percentage = (scanned / total) * 100 if total else 0
+    return {
+        "percentage": percentage,
+        "status": status,
+        "done": status == "completed"
+    }
 
 @app.route("/api/scan/<scan_id>/hosts", methods=['GET'])
 def scan_hosts(scan_id):
     hosts = load_scan(scan_id)
     return hosts
+
+# Returns the list of scans, most recent first
+@app.route("/api/scans", methods=["GET"])
+def scans():
+    return jsonify(list_scans())
 
 if __name__ == "__main__":
 
