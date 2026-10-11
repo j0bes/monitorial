@@ -1,13 +1,13 @@
 const RISKY_PORTS = {
-  21: "identifiants transmis en clair",
-  23: "trafic non chiffré",
-  135: "surface d'attaque Windows (RPC)",
-  139: "partage de fichiers hérité (NetBIOS)",
-  445: "cible fréquente des ransomwares (SMB)",
-  3389: "bureau à distance, cible de brute-force",
-  5900: "accès bureau souvent mal protégé",
-  6379: "souvent configuré sans authentification",
-  27017: "souvent configuré sans authentification",
+  21: "credentials transmitted in cleartext",
+  23: "unencrypted traffic",
+  135: "Windows attack surface (RPC)",
+  139: "legacy file sharing (NetBIOS)",
+  445: "frequent ransomware target (SMB)",
+  3389: "remote desktop, brute-force target",
+  5900: "often poorly secured desktop access",
+  6379: "often configured without authentication",
+  27017: "often configured without authentication",
 };
 
 async function startScan() {
@@ -134,7 +134,7 @@ function renderRisks(hosts) {
   }
 
   const empty = document.getElementById("risk-empty");
-  empty.textContent = hosts.length ? "aucun port à risque détecté" : "aucune donnée";
+  empty.textContent = hosts.length ? "no risky port detected" : "empty";
   empty.hidden = portCount > 0;
   document.getElementById("risk-wrap").hidden = portCount === 0;
   document.getElementById("security-meta").textContent = portCount
@@ -161,7 +161,7 @@ function openHostModal(host) {
     const td = document.createElement("td");
     td.colSpan = 3;
     td.className = "muted";
-    td.textContent = "aucun port ouvert";
+    td.textContent = "no open ports";
     tr.append(td);
     tbody.append(tr);
   }
