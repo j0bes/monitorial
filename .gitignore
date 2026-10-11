@@ -7,3 +7,5 @@ network.db-journal
 
 # python files
 __pycache__/
+
+.gitignore
