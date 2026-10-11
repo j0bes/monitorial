@@ -66,28 +66,28 @@
         </table>
       </div>
 
-      <p class="empty" id="hosts-empty">aucune donnée</p>
+      <p class="empty" id="hosts-empty">empty</p>
     </section>
 
     <aside class="panel history" aria-labelledby="history-title">
       <header class="panel__head">
-        <h2 id="history-title">historique</h2>
+        <h2 id="history-title">history</h2>
       </header>
 
       <ul class="history-list" id="history-list"></ul>
 
-      <p class="empty" id="history-empty" hidden>aucun scan enregistré</p>
+      <p class="empty" id="history-empty" hidden>no scan saved</p>
     </aside>
         <!-- Sécurité -->
     <section class="panel security" aria-labelledby="security-title">
       <header class="panel__head">
-        <h2 id="security-title">sécurité</h2>
+        <h2 id="security-title">security</h2>
         <span class="muted" id="security-meta">-</span>
       </header>
 
       <div class="security__intro">
-        <h3>ports à risque</h3>
-        <p>Services souvent ciblés par des attaques. Leur présence n'est pas une vulnérabilité en soi, c'est un point à vérifier.</p>
+        <h3>risky ports</h3>
+        <p>Services that are often targeted by attacks. Their presence is not a vulnerability in itself, it is something to check.</p>
       </div>
 
       <div class="table-wrap" id="risk-wrap" hidden>
@@ -97,14 +97,14 @@
               <th scope="col">machine</th>
               <th scope="col">port</th>
               <th scope="col">service</th>
-              <th scope="col">pourquoi</th>
+              <th scope="col">why</th>
             </tr>
           </thead>
           <tbody id="risk-body"></tbody>
         </table>
       </div>
 
-      <p class="empty" id="risk-empty">aucune donnée</p>
+      <p class="empty" id="risk-empty">empty</p>
     </section>
 
         <!-- Export -->
