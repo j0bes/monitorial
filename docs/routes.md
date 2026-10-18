@@ -9,7 +9,7 @@ They mainly enable communication between [the database](./database.md) and the w
 ## Structure & Functioning
 |Route|Function|Method|Files|
 |---|---|---|---|
-|`/`|Main page|-|`index.html`|
+|`/`|Main page|-|[`index.html`](../templates/index.html)|
 |`/api/scan`|Starts a scan|POST|`scanner/` & `database/`|
 |`/api/scans`|- Retrieves the list of scans (ID + TIMESTAMP)<br>- To display the history|GET|`database/`|
 |`/api/scan/<scan_id>/progress`|Calculates the progress percentage of a scan|GET|`database/`|
