@@ -42,18 +42,6 @@ def init_db():
             version TEXT,
             FOREIGN KEY (host_id) REFERENCES hosts(id)
         );
-
-        CREATE TABLE IF NOT EXISTS alerts(
-            id INTEGER PRIMARY KEY,
-            previous_scan_id INTEGER,
-            current_scan_id INTEGER NOT NULL,
-            type TEXT NOT NULL,
-            level TEXT NOT NULL,
-            message TEXT NOT NULL,
-            timestamp TEXT NOT NULL,
-            FOREIGN KEY (previous_scan_id) REFERENCES scans(id),
-            FOREIGN KEY (current_scan_id) REFERENCES scans(id)
-        );
     """)
     con.commit()
     con.close()
