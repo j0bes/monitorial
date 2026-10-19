@@ -31,7 +31,7 @@ This scanner uses several external **Python 3** packages:
 ## Monitoring bonus
 > List of network events that could later be used to create alerts.
 
-The `monitoring/` directory compares a scan with its previous one (if it exists) and returns a list of events.
+The [`monitoring/`](../monitoring/) directory compares a scan with its previous one (if it exists) and returns a list of events.
 Example events:
 * NEW_HOST
 * REMOVED_HOST
