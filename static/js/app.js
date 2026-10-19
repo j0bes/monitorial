@@ -10,6 +10,7 @@ const RISKY_PORTS = {
   27017: "often configured without authentication",
 };
 
+// Start a scan and then begin checking its progress.
 async function startScan() {
     const btn = document.getElementById("btn-scan");
     btn.disabled = true;
@@ -25,6 +26,7 @@ async function startScan() {
     progressBar(data)
 }
 
+// Poll the scan status and update the progress display.
 async function progressBar(data){
     const label = document.getElementById("progress-label");
     const btn = document.getElementById("btn-scan");
@@ -35,6 +37,7 @@ async function progressBar(data){
         btn.disabled = false;
     };
 
+    // Check progress every two seconds until the scan finishes or fails.
     const interval = setInterval(async () => {
         try {
             const call = await fetch(`/api/scan/${data.scan_id}/progress`);
@@ -61,6 +64,7 @@ async function progressBar(data){
     }, 2000);
 }
 
+// Convert an IPv4 address to a number so addresses can be sorted correctly.
 const ipToNum = (ip) => ip.split(".").reduce((n, o) => n * 256 + Number(o), 0);
 
 const COMMON_SERVICES = {
@@ -70,6 +74,7 @@ const COMMON_SERVICES = {
   8080: "http-alt", 8443: "https-alt",  135: "msrpc", 5900: "vnc", 6379: "redis", 27017: "mongodb",
 };
 
+// Normalize port data and add a service name when one is known.
 function normalizePorts(ports) {
   return Object.entries(ports || {})
     .map(([port, info]) => {
@@ -88,10 +93,11 @@ function normalizePorts(ports) {
 
 const modal = document.getElementById("host-modal");
 const hostsBody = document.getElementById("hosts-body");
-let currentHosts = []; // rempli par loadScan()
+let currentHosts = []; // Filled by loadScan().
 const riskBody = document.getElementById("risk-body");
 const plural = (n) => (n > 1 ? "s" : "");
 
+// Build the table of hosts that have ports listed as risky.
 function renderRisks(hosts) {
   riskBody.replaceChildren();
   let hostCount = 0;
@@ -110,7 +116,7 @@ function renderRisks(hosts) {
 
       const machine = document.createElement("td");
       machine.className = "host__ip";
-      if (i === 0) { // la machine n'apparaît que sur la première ligne de son groupe
+      if (i === 0) { // Show the host name only on the first row of its group.
         machine.textContent = host.hostname ? `${host.ip} (${host.hostname})` : host.ip;
       }
 
@@ -142,12 +148,13 @@ function renderRisks(hosts) {
     : "-";
 }
 
-// Clic ou Entrée sur une ligne : ouvre la carte de la machine
+// Open the host details when a row is clicked or Enter is pressed.
 riskBody.addEventListener("click", openFromRow);
 riskBody.addEventListener("keydown", (e) => {
   if (e.key === "Enter") openFromRow(e);
 });
 
+// Fill the modal with details about one host and its open ports.
 function openHostModal(host) {
   document.getElementById("modal-title").textContent = host.hostname || host.ip;
   document.getElementById("modal-ip").textContent = host.hostname ? host.ip : "hostname inconnu";
@@ -184,7 +191,8 @@ function openHostModal(host) {
   modal.showModal();
 }
 
-// Ouverture : clic ou Entrée sur une ligne du tableau
+// Open the host details when a table row is clicked or Enter is pressed.
+// Find the host linked to the clicked table row and open its details.
 function openFromRow(e) {
   const row = e.target.closest("tr[data-ip]");
   if (!row) return;
@@ -197,18 +205,19 @@ hostsBody.addEventListener("keydown", (e) => {
   if (e.key === "Enter") openFromRow(e);
 });
 
-// Fermeture : bouton, clic sur le fond flouté (Échap est géré nativement)
+// Close the modal with the button or by clicking the backdrop. Escape is handled by the browser.
 document.getElementById("modal-close").addEventListener("click", () => modal.close());
 modal.addEventListener("click", (e) => {
   if (e.target === modal) modal.close();
 });
 
+// Render the list of hosts and their open ports.
 function renderHosts(hosts) {
   const tbody = document.getElementById("hosts-body");
   const tplRow = document.getElementById("tpl-host-row");
   const tplPort = document.getElementById("tpl-port");
 
-  tbody.replaceChildren(); // supprime aussi les lignes d'exemple
+  tbody.replaceChildren(); // Also remove the example rows.
 
   for (const host of hosts) {
     const row = tplRow.content.firstElementChild.cloneNode(true);
@@ -238,6 +247,7 @@ function renderHosts(hosts) {
   document.getElementById("hosts-empty").hidden = hosts.length > 0;
 }
 
+// Update the scan summary statistics.
 function renderStats(data, hosts) {
   const portCount = hosts.reduce((n, h) => n + h.ports.length, 0);
 
@@ -247,6 +257,7 @@ function renderStats(data, hosts) {
   document.getElementById("hosts-meta").textContent = `scan #${data.id}`;
 }
 
+// Fetch a scan and convert its host data into a sorted list.
 async function fetchScan(scanId) {
   const res = await fetch(`/api/scan/${scanId}/hosts`);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -264,17 +275,20 @@ async function fetchScan(scanId) {
   return { data, hosts };
 }
 
-// id du scan juste avant celui-ci dans l'historique (le plus récent en premier)
+// Return the scan ID immediately before this one in history (newest first).
+// Find the scan immediately before the given scan in history.
 function previousScanId(scanId) {
   const i = historyScans.findIndex((s) => String(s.id) === String(scanId));
   return i >= 0 && historyScans[i + 1] ? historyScans[i + 1].id : null;
 }
 
-// une machine est identifiée par son MAC, ou son IP si le MAC est absent
+// Identify a host by its MAC address, or by its IP if the MAC is missing.
 const hostKey = (h) => h.mac || h.ip;
 
+// Mark hosts and ports that were not present in the previous scan.
 function markNew(hosts, prevHosts) {
-  if (!prevHosts) return; // pas de scan précédent : aucun tag
+  if (!prevHosts) return; // Without a previous scan, no items are marked as new.
+  // Store each previous host and its known ports for quick comparison.
   const before = new Map(
     prevHosts.map((h) => [hostKey(h), new Set(h.ports.map((p) => p.port))])
   );
@@ -285,6 +299,7 @@ function markNew(hosts, prevHosts) {
   }
 }
 
+// Create the small label used to mark new items.
 function newBadge() {
   const b = document.createElement("span");
   b.className = "tag-new";
@@ -292,10 +307,11 @@ function newBadge() {
   return b;
 }
 
+// Load a scan, compare it with the previous scan, and refresh the page.
 async function loadScan(scanId) {
   const { data, hosts } = await fetchScan(scanId);
 
-  // l'échec du scan précédent ne doit pas bloquer l'affichage
+  // A failure to load the previous scan must not block the current view.
   const prevId = previousScanId(data.id);
   let prevHosts = null;
   if (prevId) {
@@ -324,10 +340,12 @@ const historyList = document.getElementById("history-list");
 let currentScanId = null;
 let historyScans = [];
 
+// Format a timestamp for display in the French locale.
 function formatDate(ts) {
   return new Date(ts).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" });
 }
 
+// Highlight the selected scan in the history list.
 function highlightActive() {
   for (const btn of historyList.querySelectorAll(".history-item")) {
     const active = btn.dataset.scanId === String(currentScanId);
@@ -337,6 +355,7 @@ function highlightActive() {
   }
 }
 
+// Render all scans in the history list.
 function renderHistory(scans) {
   const tpl = document.getElementById("tpl-history-item");
   historyList.replaceChildren(); // supprime aussi les items d'exemple
@@ -353,39 +372,42 @@ function renderHistory(scans) {
   highlightActive();
 }
 
+// Fetch the scan history and update the history list.
 async function refreshHistory() {
   const res = await fetch("/api/scans");
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  historyScans = await res.json(); // le plus récent en premier
+  historyScans = await res.json(); // Scans are ordered from newest to oldest.
   renderHistory(historyScans);
   return historyScans;
 }
 
+// Reset the page to an empty state.
 function resetView() {
   currentHosts = [];
   currentScanId = null;
   exportBtn.disabled = true;
   renderHosts([]);
-  renderRisks([]); // vide le tableau et affiche "aucune donnée"
+  renderRisks([]); // Clear the table and show that there is no data.
   document.getElementById("stat-machines").textContent = 0;
   document.getElementById("stat-ports").textContent = 0;
   document.getElementById("stat-date").textContent = "-";
   document.getElementById("hosts-meta").textContent = "-";
 }
 
-// Clic sur un scan de l'historique
+// Load a scan when its history item is clicked.
 historyList.addEventListener("click", (e) => {
   const btn = e.target.closest(".history-item");
   if (btn) loadScan(btn.dataset.scanId).catch(console.error);
 });
 
-// Boutons de la top bar
+// Top bar buttons.
 document.getElementById("btn-scan").addEventListener("click", startScan);
 document.getElementById("btn-last").addEventListener("click", () => {
   if (historyScans[0]) loadScan(historyScans[0].id).catch(console.error);
 });
 
-// Démarrage : scan mémorisé s'il existe encore, sinon le plus récent, sinon "aucune donnée"
+// On startup, load the saved scan if it exists; otherwise load the newest scan, or show an empty view.
+// Initialize the page and restore the most relevant scan.
 async function init() {
   try {
     const scans = await refreshHistory();
@@ -402,9 +424,11 @@ async function init() {
 let currentTimestamp = null;
 const exportBtn = document.getElementById("btn-export");
 
+// Export the current scan as a JSON file.
 function exportJson() {
   if (currentScanId === null) return;
 
+  // Keep only the scan fields needed in the exported JSON.
   const payload = {
     scan_id: currentScanId,
     timestamp: currentTimestamp,
