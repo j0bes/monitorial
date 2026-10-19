@@ -48,7 +48,7 @@ h1, h2 {
   outline-offset: 2px;
 }
 
-/* ---------- Top bar ---------- */
+/*TOPBAR*/
 
 .topbar {
   max-width: 80rem;
@@ -151,7 +151,7 @@ h1, h2 {
   cursor: not-allowed;
 }
 
-/* ---------- Barre de progression (segmentée) ---------- */
+/*PROGRESS BAR*/
 
 .progress-row {
   display: flex;
@@ -227,7 +227,7 @@ h1, h2 {
   display: none;
 }
 
-/* ---------- Liste des machines ---------- */
+/*LISTS OF MACHINES*/
 
 .table-wrap {
   overflow-x: auto;
@@ -303,8 +303,7 @@ h1, h2 {
   white-space: nowrap;
 }
 
-
-/* ---------- Historique ---------- */
+/*HISTORY*/
 
 .history-list {
   list-style: none;
@@ -379,7 +378,7 @@ h1, h2 {
   border-top: 1px solid var(--line);
 }
 
-/* ---------- Responsive ---------- */
+/*RESPONSIVE*/
 
 @media (max-width: 860px) {
   .topbar {
@@ -399,7 +398,7 @@ h1, h2 {
 
 }
 
-/* ---------- Pop-up machine ---------- */
+/*POPUP MACHINE*/
 
 .hosts-table tbody tr[data-ip] {
   cursor: pointer;
