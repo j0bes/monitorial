@@ -5,9 +5,9 @@
 <br>
 It also provides practical information on open ports, such as potential high-risk ports. And new machine connected, compared to the previous scan (if exists).
 
-## Documentation
+## Documentations
 - [Routes](./docs/routes.md)
 - [DB Structure](./docs/database.md)
 - [Network scanner](./docs/netowrk.md)
 ## Author
-*@j0bes* - 2026
+*@j0bes* - MonitoriaL - 2026
