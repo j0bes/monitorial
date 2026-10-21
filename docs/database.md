@@ -1,18 +1,20 @@
 # Database documentation
 Here is the documentation explaining the functioning and logic of the **data storage** in this project.
-This section concerns [`database/`](../database/) directory, whose architecture is as follows:
+This section concerns the [`database/`](../database/) directory, whose architecture is as follows:
 |File|Functions|
 |---|---|
-|[`db.py`](../database/db.py)|Initialise la structure de la base de données|
-|[`hosts.py`](../database/hosts.py)|Enregistre les hôtes (scan_id, ip, hostname, mac) dans la table `hosts`|
-|[`ports.py`](../database/ports.py)|Enregistre les ports (host_id, port, protocol, service, product, version) dans la table `ports`|
-|[`scans.py`](../database/scans.py)|Execute toutes les manipulations sur la base de données: charger un scan, récupérer les ID, récupérer la progression d'un scan en cours et +|
+|[`db.py`](../database/db.py)|Initializes the database structure|
+|[`hosts.py`](../database/hosts.py)|Registers hosts (scan_id, ip, hostname, mac) in the `hosts` table|
+|[`ports.py`](../database/ports.py)|Registers ports (host_id, port, protocol, service, product, version) in the `ports` table|
+|[`scans.py`](../database/scans.py)|Performs all database operations: loading a scan, retrieving IDs, retrieving the progress of an ongoing scan, and more|
 
-Dans ce projet le stockage est un point central, et permet par la suite un meilleur accès au donnée.
+In this project, storage is a central component, allowing better access to data later on.
 
-C'est pourquoi ici on distingue les tables: `scans`, `hosts`, `ports`. Et chaque table hérite d'une clé étrangère afin de garantir les dépendances.
+That is why the database is structured into three tables: `scans`, `hosts`, and `ports`. Each table is linked through foreign keys to maintain referential integrity and ensure consistent relationships between the stored data.
 
-**Exemple de la table `scans` et `hosts`:**
+The `hosts` table contains a `scan_id` foreign key referencing `scans.scan_id`, allowing each host to be associated with the scan that discovered it. Similarly, the `ports` table contains a `host_id` foreign key referencing `hosts.host_id`, allowing each port to be associated with the host on which it was discovered.
+
+**Example of the `scans` and `hosts` tables:**
 
 |scan_id|timestamp|status|total_ips|completed_ips|
 |---|---|---|---|---|
@@ -25,7 +27,7 @@ C'est pourquoi ici on distingue les tables: `scans`, `hosts`, `ports`. Et chaque
 |1|4|192.168.0.13|windows|E5:67:A1:54:C7:32|
 |2|1|192.168.0.1|livebox|5E:FF:56:A2:AF:15|
 
-On voit bien ici que la table `hosts` hérite de la clé étrangère `scan_id` ce qui nous permet de savoir a quel scan chaque hôte appartient.
+As we can clearly see here, the `hosts` table inherits the foreign key `scan_id`, allowing us to know which scan each host belongs to.
 
 <hr>
 
