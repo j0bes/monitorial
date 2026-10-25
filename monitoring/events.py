@@ -146,7 +146,7 @@ def detect_version_changes(current_scan, previous_scan):
             for port, port_data in host["ports"].items():
                 if port in previous_hosts[ip]["ports"]:
 
-                    if port_data["version"] != previous_hosts[ip]["ports"][port]["version"]:
+                    if port_data["version"] != previous_hosts[ip]["ports"][port]["version"] and port_data["service"] == previous_hosts[ip]["ports"][port]["service"]:
                         version_changes.append({
                             "type": "VERSION_CHANGED",
                             "ip": ip,
