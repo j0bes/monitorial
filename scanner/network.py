@@ -2,11 +2,22 @@ import netifaces
 import subprocess
 import platform
 import socket
+import os
 from ipaddress import IPv4Network
 
 def get_network():
-    # grab all interfaces ('lo', 'eth0', 'wl0', etc)
-    interfaces = netifaces.interfaces()
+    # manual override, e.g. SCAN_NETWORK=192.168.56.0/24 for the host-only lab
+    override = os.environ.get("SCAN_NETWORK")
+    if override:
+        return IPv4Network(override, strict=False)
+
+    # prefer the interface used by the default route (the "real" network)
+    try:
+        default_interface = netifaces.gateways()["default"][netifaces.AF_INET][1]
+        interfaces = [default_interface]
+    except (KeyError, IndexError):
+        interfaces = netifaces.interfaces()
+
     for interface in interfaces:
         addrs = netifaces.ifaddresses(interface)
 
@@ -16,9 +27,9 @@ def get_network():
                 # return for ex: {'addr': '192.168.1.50', 'netmask': '255.255.255.0', 'broadcast': '192.168.1.255'}
                 ip = addr.get("addr")
                 netmask = addr.get("netmask")
-                if ip and not ip.startswith("127."):
-                    network = IPv4Network(f"{ip}/{netmask}", strict=False)
-                    return network # CIDR notation
+                # skip loopback and link-local (169.254.x.x) addresses
+                if ip and netmask and not ip.startswith(("127.", "169.254.")):
+                    return IPv4Network(f"{ip}/{netmask}", strict=False) # CIDR notation
 
 def get_hosts(network: str):
     ips = list(network.hosts())
