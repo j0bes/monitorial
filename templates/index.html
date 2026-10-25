@@ -105,6 +105,26 @@
       </div>
 
       <p class="empty" id="risk-empty">empty</p>
+
+      <div class="security__intro security__intro--next">
+        <h3>events</h3>
+        <p id="events-subtitle">Changes compared to the previous scan.</p>
+      </div>
+
+      <div class="table-wrap" id="events-wrap" hidden>
+        <table class="hosts-table">
+          <thead>
+            <tr>
+              <th scope="col">event</th>
+              <th scope="col">machine</th>
+              <th scope="col">detail</th>
+            </tr>
+          </thead>
+          <tbody id="events-body"></tbody>
+        </table>
+      </div>
+
+      <p class="empty" id="events-empty">no data</p>
     </section>
 
         <!-- Export -->
