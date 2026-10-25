@@ -8,6 +8,7 @@
   --accent: #8fbf7f;
   --font: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
   --danger: #e0846f;
+  --warn: #d9a441;
 }
 
 *,
@@ -377,6 +378,21 @@ h1, h2 {
 .security .table-wrap {
   border-top: 1px solid var(--line);
 }
+
+.security__intro--next {
+  border-top: 1px solid var(--line);
+}
+
+.tag-event {
+  display: inline-block;
+  padding: 0 6px;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.tag-event--added   { border-color: var(--accent); color: var(--accent); }
+.tag-event--changed { border-color: var(--warn);   color: var(--warn); }
 
 /*RESPONSIVE*/
 
