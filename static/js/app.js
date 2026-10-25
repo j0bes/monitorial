@@ -96,6 +96,116 @@ const hostsBody = document.getElementById("hosts-body");
 let currentHosts = []; // Filled by loadScan().
 const riskBody = document.getElementById("risk-body");
 const plural = (n) => (n > 1 ? "s" : "");
+const eventsBody = document.getElementById("events-body");
+
+const EVENT_TYPES = {
+  NEW_HOST:        { label: "new host",        kind: "added" },
+  REMOVED_HOST:    { label: "removed host",    kind: "removed" },
+  NEW_PORT:        { label: "new port",        kind: "added" },
+  CLOSED_PORT:     { label: "closed port",     kind: "removed" },
+  SERVICE_CHANGED: { label: "service changed", kind: "changed" },
+  VERSION_CHANGED: { label: "version changed", kind: "changed" },
+};
+
+function describeService(s) {
+  const name = s.service || "unknown";
+  const detail = [s.product, s.version].filter(Boolean).join(" ");
+  return detail ? `${name} (${detail})` : name;
+}
+
+function eventDetail(ev) {
+  const d = ev.data;
+  switch (ev.type) {
+    case "NEW_PORT":
+    case "CLOSED_PORT":
+      return `${d.port}: ${describeService(d)}`;
+    case "SERVICE_CHANGED":
+    case "VERSION_CHANGED":
+      return `${d.port}: ${describeService(d.previous)} → ${describeService(d.current)}`;
+    default:
+      return "-"; // host events: the machine column says it all
+  }
+}
+
+async function fetchEvents(scanId) {
+  try {
+    const res = await fetch(`/api/scan/${scanId}/events`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch (err) {
+    console.error(err);
+    return null;
+  }
+}
+
+function renderEvents(payload) {
+  eventsBody.replaceChildren();
+  const events = payload?.events ?? [];
+
+  // group by type in a fixed order; unknown types (new detectors) get their own group
+  const byType = new Map(Object.keys(EVENT_TYPES).map((t) => [t, []]));
+  for (const ev of events) {
+    if (!byType.has(ev.type)) byType.set(ev.type, []);
+    byType.get(ev.type).push(ev);
+  }
+
+  for (const [type, list] of byType) {
+    list.sort((a, b) =>
+      ipToNum(a.ip) - ipToNum(b.ip) || Number(a.data.port) - Number(b.data.port));
+
+    list.forEach((ev, i) => {
+      const tr = document.createElement("tr");
+      // only machines present in the displayed scan can open the modal
+      if (currentHosts.some((h) => h.ip === ev.ip)) {
+        tr.dataset.ip = ev.ip;
+        tr.tabIndex = 0;
+      }
+
+      const typeCell = document.createElement("td");
+      if (i === 0) {
+        const meta = EVENT_TYPES[type] ?? {
+          label: type.toLowerCase().replaceAll("_", " "),
+          kind: "changed",
+        };
+        const tag = document.createElement("span");
+        tag.className = `tag-event tag-event--${meta.kind}`;
+        tag.textContent = `${meta.label} (${list.length})`;
+        typeCell.append(tag);
+      }
+
+      const machine = document.createElement("td");
+      machine.className = "host__ip";
+      machine.textContent = ev.data.hostname ? `${ev.ip} (${ev.data.hostname})` : ev.ip;
+
+      const detail = document.createElement("td");
+      detail.textContent = eventDetail(ev);
+
+      tr.append(typeCell, machine, detail);
+      eventsBody.append(tr);
+    });
+  }
+
+  let message = null;
+  if (!payload) message = "no data";
+  else if (payload.previous_scan_id === null) message = "no previous scan to compare with";
+  else if (events.length === 0) message = `no changes since scan #${payload.previous_scan_id}`;
+
+  document.getElementById("events-subtitle").textContent =
+    payload && payload.previous_scan_id !== null
+      ? `Changes since scan #${payload.previous_scan_id}, ${events.length} event${events.length === 1 ? "" : "s"}.`
+      : "Changes compared to the previous scan.";
+
+  const empty = document.getElementById("events-empty");
+  empty.textContent = message ?? "";
+  empty.hidden = message === null;
+  document.getElementById("events-wrap").hidden = message !== null;
+}
+
+// click or Enter on a row opens the machine modal
+eventsBody.addEventListener("click", openFromRow);
+eventsBody.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") openFromRow(e);
+});
 
 // Build the table of hosts that have ports listed as risky.
 function renderRisks(hosts) {
@@ -327,6 +437,8 @@ async function loadScan(scanId) {
   renderHosts(currentHosts);
   renderRisks(currentHosts);
   renderStats(data, currentHosts);
+  const eventsPayload = await fetchEvents(data.id);
+  renderEvents(eventsPayload);
 
   currentScanId = String(data.id);
   currentTimestamp = data.timestamp;
@@ -388,6 +500,7 @@ function resetView() {
   exportBtn.disabled = true;
   renderHosts([]);
   renderRisks([]); // Clear the table and show that there is no data.
+  renderEvents(null);
   document.getElementById("stat-machines").textContent = 0;
   document.getElementById("stat-ports").textContent = 0;
   document.getElementById("stat-date").textContent = "-";
