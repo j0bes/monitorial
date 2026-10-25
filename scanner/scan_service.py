@@ -1,5 +1,5 @@
 # IMPORTS
-from database.scans import get_last_scan_id, update_scan_status, increment_scan_progress
+from database.scans import update_scan_status, increment_scan_progress
 from database.hosts import save_host
 from database.ports import save_port
 
@@ -13,8 +13,6 @@ from time import perf_counter
 from monitoring.events import generate_events
 
 def run_scan(scan_id: int, ips: list):
-    # grab the previous scan_id
-    previous_scan_id = get_last_scan_id()
 
     t=perf_counter()
 
@@ -61,11 +59,6 @@ def run_scan(scan_id: int, ips: list):
         print(f"scan {scan_id} failed.")
 
     print(f"TOTAL: {perf_counter()-t:.2f}s")
-
-    if previous_scan_id:
-        events = generate_events(scan_id, previous_scan_id)
-
-    # create alerts
 
 def scan_ip(ip):
     t=perf_counter()
