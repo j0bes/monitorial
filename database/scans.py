@@ -13,24 +13,14 @@ def create_scan(total_ips: int):
 
     return scan_id
 
-def get_last_scan_id():
+def get_previous_scan_id(scan_id: int):
     con = get_connection()
-
     row = con.execute(
-        """
-        SELECT id
-        FROM scans
-        ORDER BY id DESC
-        LIMIT 1
-        """
+        "SELECT id FROM scans WHERE status = 'completed' AND id < ? ORDER BY id DESC LIMIT 1",
+        (scan_id,)
     ).fetchone()
-
     con.close()
-
-    if row is None:
-        return None
-
-    return row["id"]
+    return row[0] if row else None
 
 def get_scan_progress(scan_id: int):
     con = get_connection()
