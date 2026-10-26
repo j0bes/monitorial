@@ -16,6 +16,6 @@ It also provides practical information on open ports, such as potential high-ris
 - [x] monitoring (events)
 - [x] web interface
 - [x] documentations
-- [x] tests
+- [ ] tests
 ## Author
 *@j0bes* - MonitoriaL - 2026
