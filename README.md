@@ -10,7 +10,12 @@ It also provides practical information on open ports, such as potential high-ris
 - [Routes](./docs/routes.md)
 - [DB Structure](./docs/database.md)
 - [Network scanner](./docs/netowrk.md)
+- [Tests](./docs/tests.md)
 ## Features
-- [ ] 
+- [x] scanner it self
+- [x] monitoring (events)
+- [x] web interface
+- [x] documentations
+- [x] tests
 ## Author
 *@j0bes* - MonitoriaL - 2026
