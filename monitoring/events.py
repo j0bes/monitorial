@@ -110,6 +110,11 @@ def detect_service_changes(current_scan, previous_scan):
 
             for port, port_data in host["ports"].items():
                 if port in previous_hosts[ip]["ports"]:
+                    previous_port = previous_hosts[ip]["ports"][port]
+
+                    # detection failed on one of the scans: not a real change
+                    if port_data["service"] is None or previous_port["service"] is None:
+                        continue
 
                     if port_data["service"] != previous_hosts[ip]["ports"][port]["service"]:
                         service_changes.append({
@@ -145,7 +150,12 @@ def detect_version_changes(current_scan, previous_scan):
 
             for port, port_data in host["ports"].items():
                 if port in previous_hosts[ip]["ports"]:
+                    previous_port = previous_hosts[ip]["ports"][port]
 
+                    # detection failed on one of the scans: not a real change
+                    if port_data["service"] is None or previous_port["service"] is None:
+                        continue
+                    
                     if port_data["version"] != previous_hosts[ip]["ports"][port]["version"] and port_data["service"] == previous_hosts[ip]["ports"][port]["service"]:
                         version_changes.append({
                             "type": "VERSION_CHANGED",
