@@ -7,7 +7,7 @@ lst_ports = [
     21, 22, 23, 25, 53,   
     80, 110, 139, 143,
     443, 445, 3389,
-    8080
+    8080, 8081
 ]
 
 def scan_ports(ip: str):
@@ -44,16 +44,19 @@ def detect_services(ip: str, open_ports: list):
 
     try:
         result = subprocess.run(
-            [   
+            [
                 "nmap",
                 "-sV",
+                "--version-light",
+                "-Pn",
+                "-T4",
                 "-p", ports,
                 "-oX", "-",
                 ip
             ],
             capture_output=True,
             text=True,
-            timeout=30
+            timeout=120
         )
 
         if result.returncode != 0:
@@ -68,16 +71,12 @@ def detect_services(ip: str, open_ports: list):
 
             service = port.find("service")
 
-            if service:
-                service_name = service.get("name", "")
-                product = service.get("product", "")
-                version = service.get("version", "")
-    
+            if service is not None:
                 ports_services[port_id] = {
                     "protocol": protocol,
-                    "service": service_name,
-                    "product": product,
-                    "version": version
+                    "service": service.get("name") or None,
+                    "product": service.get("product") or None,
+                    "version": service.get("version") or None,
                 }
 
     except subprocess.TimeoutExpired:
