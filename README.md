@@ -9,7 +9,7 @@ It also provides practical information on open ports, such as potential high-ris
 - [Installation & Config](./docs/instal-config.md)
 - [Routes](./docs/routes.md)
 - [DB Structure](./docs/database.md)
-- [Network scanner](./docs/netowrk.md)
+- [Network scanner](./docs/network.md)
 - [Tests](./docs/tests.md)
 ## Features
 - [x] scanner it self
